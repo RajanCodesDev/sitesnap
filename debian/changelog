@@ -1,4 +1,4 @@
-sitesnap (1.0.0-2) noble; urgency=medium
+sitesnap (1.0.0-3) noble; urgency=medium
 
   * Initial PPA release.
   * Crawl websites and create deployment snapshots.
