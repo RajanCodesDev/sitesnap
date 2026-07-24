@@ -1,9 +1,0 @@
-Package: sitesnap
-Version: 1.0.0
-Section: utils
-Priority: optional
-Architecture: amd64
-Maintainer: Shivendra Rajan <your@email.com>
-Description: Concurrent website snapshot and deployment verification tool.
- SiteSnap crawls websites, creates snapshots, validates deployments,
- detects regressions, and compares changes across releases.
