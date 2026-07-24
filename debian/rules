@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+export DH_GOPKG := github.com/RajanCodesDev/sitesnap
+export CGO_ENABLED := 1
+
+%:
+	dh $@ --buildsystem=golang
+
+override_dh_dwz:
+	true
