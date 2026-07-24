@@ -199,20 +199,15 @@ func Crawl(cfg Config) (*snapshot.Snapshot, error) {
 // It returns the updated pending count, crawled count, and send queue. The
 // crawled page itself is appended to pages by the caller.
 func handleResult(
-    res result,
-    pending,
-    crawled int,
-    visited map[string]bool,
-    toSend []job,
-    excludePaths []string,
+	res result,
+	pending,
+	crawled int,
+	visited map[string]bool,
+	toSend []job,
+	excludePaths []string,
 ) (int, int, []job) {
 	pending--
 	crawled++
-
-	var (
-		newLinks     int
-		skippedLinks int
-	)
 
 	for _, l := range res.links {
 		l = canonicalize(l)
@@ -234,14 +229,6 @@ func handleResult(
 		})
 	}
 
-	fmt.Printf(
-		"Page: %s | links=%d new=%d skipped=%d\n",
-		res.page.URL,
-		len(res.links),
-		newLinks,
-		skippedLinks,
-	)
-
 	return pending, crawled, toSend
 }
 
@@ -258,7 +245,15 @@ func worker(ctx context.Context, client *http.Client, base *url.URL, jobs <-chan
 func fetch(ctx context.Context, client *http.Client, base *url.URL, j job) result {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, j.url, nil)
 	if err != nil {
-		return result{page: snapshot.Page{URL: j.url, ParentURL: j.parentURL, StatusCode: 0}}
+		fmt.Printf("FETCH ERROR: %s -> %v\n", j.url, err)
+
+		return result{
+			page: snapshot.Page{
+				URL: j.url,
+				ParentURL: j.parentURL,
+				StatusCode: 0,
+			},
+		}
 	}
 	req.Header.Set("User-Agent", "SiteSnap/0.1")
 
