@@ -1,132 +1,181 @@
 # SiteSnap
 
-SiteSnap is a high-performance website deployment validation tool written in Go.
+SiteSnap is a fast, concurrent website crawler written in Go for deployment verification, website auditing, and snapshot generation.
 
-Instead of checking only whether a website is online, SiteSnap creates a complete snapshot of your website, compares it with previous deployments, and immediately highlights what changed.
+Unlike traditional crawlers that focus on SEO metrics, SiteSnap answers one simple question:
 
-Designed for DevOps engineers, SREs, release engineers, and QA teams.
+> **"Did my deployment break the website?"**
+
+---
 
 ## Features
 
-- Fast concurrent crawler
-- Automatic sitemap discovery (`robots.txt`)
-- Website snapshot generation
-- Deployment comparison
-- Detects:
-  - Added URLs
-  - Removed URLs
-  - HTTP status code changes
-  - Content-Type changes
-- Snapshot validation
-- Duplicate URL detection
-- CSV report export
-- JSON report export
-- Atomic snapshot replacement
-- Crash-safe snapshot storage
-- File locking to prevent concurrent runs
-- Pure Go implementation
+- Fast concurrent crawling
+- Automatic sitemap discovery
+- Sitemap index support
+- Compressed (`.xml.gz`) sitemap support
+- HTML link extraction
+- Internal link discovery
+- Parent-child relationship tracking
+- Content-Type detection
+- Resource type classification
+- Path exclusion support
+- Redirect handling
+- Canonical URL normalization
+- JSON snapshot output
+- Progress reporting API
+
+---
 
 ## Installation
 
-### Debian / Ubuntu
-
-```bash
-sudo add-apt-repository ppa:rajancodesdev/ppa
-sudo apt update
-sudo apt install sitesnap
-```
-
-### Build from source
+Clone the repository and build the binary:
 
 ```bash
 git clone https://github.com/RajanCodesDev/sitesnap.git
+
 cd sitesnap
+
 go build ./cmd/sitesnap
 ```
 
+---
+
 ## Usage
 
-Create a baseline snapshot:
+Basic crawl:
 
 ```bash
-sitesnap https://example.com
+sitesnap crawl https://example.com
 ```
 
-Generate CSV reports:
+### Common Flags
+
+| Flag | Description |
+|------|-------------|
+| `--workers 20` | Number of concurrent workers |
+| `--timeout 30s` | HTTP request timeout |
+| `--exclude /admin` | Exclude a path from crawling |
+| `--output report.json` | Save crawl results as JSON |
+
+Example:
 
 ```bash
-sitesnap --csv reports/ https://example.com
+sitesnap crawl https://example.com \
+    --workers 20 \
+    --exclude /admin \
+    --exclude /checkout \
+    --output report.json
 ```
 
-Generate JSON output:
+---
+
+## What SiteSnap Crawls
+
+SiteSnap discovers and records:
+
+- HTML pages
+- CSS files
+- JavaScript
+- Images
+- Fonts
+- PDFs
+- Other linked resources
+
+---
+
+## Sitemap Support
+
+SiteSnap automatically:
+
+- Downloads `robots.txt`
+- Discovers all `Sitemap:` entries
+- Falls back to `/sitemap.xml` when necessary
+- Supports sitemap indexes
+- Supports compressed (`.xml.gz`) sitemaps
+
+No manual sitemap configuration is required.
+
+---
+
+## Excluding Paths
+
+Exclude one or more paths during crawling:
 
 ```bash
-sitesnap --json https://example.com
+sitesnap crawl https://example.com \
+    --exclude /admin \
+    --exclude /checkout \
+    --exclude /private
 ```
 
-Run without replacing the stored snapshot:
+Multiple `--exclude` flags are supported.
 
-```bash
-sitesnap --no-replace https://example.com
-```
+---
 
-Validate crawl strictly:
+## Output
 
-```bash
-sitesnap --strict https://example.com
-```
+The generated JSON snapshot contains metadata for every discovered resource, including:
 
-## Reports
+- URL
+- Parent URL
+- HTTP Status
+- Content Type
+- Resource Type
 
-SiteSnap can export:
-
-```
-snapshot.csv
-added.csv
-removed.csv
-status_changes.csv
-content_type_changes.csv
-```
-
-## Why SiteSnap?
-
-Monitoring tells you when a website goes down.
-
-SiteSnap tells you exactly what changed after a deployment.
-
-Typical use cases:
+This makes SiteSnap suitable for:
 
 - Deployment verification
-- Release validation
-- CI/CD pipelines
-- Website migrations
-- SEO integrity checks
-- Large website regression testing
+- Website inventory
+- Snapshot generation
+- Automated reporting
+- Future deployment comparisons
 
-## Example Workflow
+---
 
+## Typical Workflow
+
+```text
+Start URL
+    │
+    ▼
+Download robots.txt
+    │
+    ▼
+Discover sitemaps
+    │
+    ▼
+Queue URLs
+    │
+    ▼
+Concurrent crawling
+    │
+    ▼
+Extract internal links
+    │
+    ▼
+Classify resources
+    │
+    ▼
+Generate JSON snapshot
 ```
-Previous Snapshot
-        │
-        ▼
- Crawl Website
-        │
-        ▼
- Create Snapshot
-        │
-        ▼
- Validate Snapshot
-        │
-        ▼
- Compare
-        │
-        ▼
- Export Reports
-        │
-        ▼
- Replace Stored Snapshot
-```
+
+---
+
+## Roadmap
+
+Planned features include:
+
+- HTML reports
+- Markdown reports
+- CSV export
+- Deployment diff reports
+- Broken link reports
+- GitHub Actions integration
+- CI/CD summaries
+
+---
 
 ## License
 
-MIT
+MIT License
