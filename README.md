@@ -31,7 +31,7 @@ Designed for DevOps engineers, SREs, release engineers, and QA teams.
 ### Debian / Ubuntu
 
 ```bash
-sudo add-apt-repository ppa:<your-ppa>
+sudo add-apt-repository ppa:rajancodesdev/ppa
 sudo apt update
 sudo apt install sitesnap
 ```
