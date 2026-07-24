@@ -7,6 +7,7 @@ Build-Depends:
  dh-golang,
  golang-any
 Standards-Version: 4.6.2
+XS-Go-Import-Path: github.com/RajanCodesDev/sitesnap
 Homepage: https://github.com/RajanCodesDev/sitesnap
 Rules-Requires-Root: no
 
