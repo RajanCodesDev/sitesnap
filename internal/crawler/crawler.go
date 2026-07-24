@@ -29,6 +29,7 @@ type Config struct {
 	Workers   int
 	Timeout   time.Duration
 	UserAgent string
+	ExcludePaths []string
 	// Progress, if set, is called after each page is processed with the number
 	// of pages crawled so far and the number still pending.
 	Progress func(crawled, pending int)
@@ -125,6 +126,9 @@ func Crawl(cfg Config) (*snapshot.Snapshot, error) {
 
 	for _, u := range sitemapURLs {
 		u = canonicalize(u)
+		if shouldExclude(u, cfg.ExcludePaths) {
+			continue
+		}
 
 		if visited[u] {
 			continue
@@ -148,7 +152,14 @@ func Crawl(cfg Config) (*snapshot.Snapshot, error) {
 				toSend = toSend[1:]
 			case res := <-results:
 				pages = append(pages, res.page)
-				pending, crawled, toSend = handleResult(res, pending, crawled, visited, toSend)
+				pending, crawled, toSend = handleResult(
+					res,
+					pending,
+					crawled,
+					visited,
+					toSend,
+					cfg.ExcludePaths,
+				)
 				if cfg.Progress != nil {
 					cfg.Progress(crawled, pending)
 				}
@@ -156,7 +167,14 @@ func Crawl(cfg Config) (*snapshot.Snapshot, error) {
 		} else {
 			res := <-results
 			pages = append(pages, res.page)
-			pending, crawled, toSend = handleResult(res, pending, crawled, visited, toSend)
+			pending, crawled, toSend = handleResult(
+				res,
+				pending,
+				crawled,
+				visited,
+				toSend,
+				cfg.ExcludePaths,
+			)
 			if cfg.Progress != nil {
 				cfg.Progress(crawled, pending)
 			}
@@ -180,18 +198,50 @@ func Crawl(cfg Config) (*snapshot.Snapshot, error) {
 // handleResult enqueues any newly discovered internal links from a result.
 // It returns the updated pending count, crawled count, and send queue. The
 // crawled page itself is appended to pages by the caller.
-func handleResult(res result, pending, crawled int, visited map[string]bool, toSend []job) (int, int, []job) {
+func handleResult(
+    res result,
+    pending,
+    crawled int,
+    visited map[string]bool,
+    toSend []job,
+    excludePaths []string,
+) (int, int, []job) {
 	pending--
 	crawled++
+
+	var (
+		newLinks     int
+		skippedLinks int
+	)
+
 	for _, l := range res.links {
 		l = canonicalize(l)
+
+		if shouldExclude(l, excludePaths) {
+			continue
+		}
+
 		if visited[l] {
 			continue
 		}
+
 		visited[l] = true
 		pending++
-		toSend = append(toSend, job{url: l, parentURL: res.page.URL})
+
+		toSend = append(toSend, job{
+			url:       l,
+			parentURL: res.page.URL,
+		})
 	}
+
+	fmt.Printf(
+		"Page: %s | links=%d new=%d skipped=%d\n",
+		res.page.URL,
+		len(res.links),
+		newLinks,
+		skippedLinks,
+	)
+
 	return pending, crawled, toSend
 }
 
