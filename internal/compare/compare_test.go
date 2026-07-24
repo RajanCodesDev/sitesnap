@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 func snap(pages ...snapshot.Page) *snapshot.Snapshot {

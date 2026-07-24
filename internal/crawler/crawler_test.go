@@ -7,12 +7,24 @@ import (
 	"testing"
 	"time"
 
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 // testServer returns an httptest server with a small linked site.
+// testServer returns an httptest server with a small linked site.
 func testServer(hits *int32) *httptest.Server {
 	mux := http.NewServeMux()
+
+	// Sitemap discovery endpoints.
+	// These should not count as page crawls.
+	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
+
+	mux.HandleFunc("/sitemap.xml", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
+
 	pages := map[string]string{
 		"/":        `<a href="/a">A</a><a href="/b">B</a>`,
 		"/a":       `<a href="/">Home</a><a href="/c">C</a>`,
@@ -20,20 +32,25 @@ func testServer(hits *int32) *httptest.Server {
 		"/c":       `<a href="/missing">M</a>`,
 		"/missing": `not found`,
 	}
+
 	for path, body := range pages {
 		body := body
 		p := path
+
 		mux.HandleFunc(p, func(w http.ResponseWriter, r *http.Request) {
 			atomic.AddInt32(hits, 1)
+
 			if p == "/missing" {
 				w.WriteHeader(http.StatusNotFound)
-				w.Write([]byte(body))
+				_, _ = w.Write([]byte(body))
 				return
 			}
+
 			w.Header().Set("Content-Type", "text/html")
-			w.Write([]byte(body))
+			_, _ = w.Write([]byte(body))
 		})
 	}
+
 	return httptest.NewServer(mux)
 }
 

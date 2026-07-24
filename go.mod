@@ -1,3 +1,3 @@
-module sitesnap
+module github.com/RajanCodesDev/sitesnap
 
-go 1.24
+go 1.25

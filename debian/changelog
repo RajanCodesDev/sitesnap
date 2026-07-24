@@ -1,0 +1,9 @@
+sitesnap (1.0.0-3) noble; urgency=medium
+
+  * Initial PPA release.
+  * Crawl websites and create deployment snapshots.
+  * Compare snapshots to detect regressions.
+  * Export CSV reports for crawl and deployment changes.
+
+ -- Shivendra Rajan <shivendrarajan10@gmail.com>  Fri, 24 Jul 2026 13:30:00 +0530
+

@@ -12,11 +12,11 @@ package crawler
 import (
 	"context"
 	"fmt"
+	"github.com/RajanCodesDev/sitesnap/internal/parser"
+	"github.com/RajanCodesDev/sitesnap/internal/sitemap"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 	"net/http"
 	"net/url"
-	"sitesnap/internal/parser"
-	"sitesnap/internal/sitemap"
-	"sitesnap/internal/snapshot"
 	"sort"
 	"strings"
 	"sync"
@@ -29,6 +29,7 @@ type Config struct {
 	Workers   int
 	Timeout   time.Duration
 	UserAgent string
+	ExcludePaths []string
 	// Progress, if set, is called after each page is processed with the number
 	// of pages crawled so far and the number still pending.
 	Progress func(crawled, pending int)
@@ -125,6 +126,9 @@ func Crawl(cfg Config) (*snapshot.Snapshot, error) {
 
 	for _, u := range sitemapURLs {
 		u = canonicalize(u)
+		if shouldExclude(u, cfg.ExcludePaths) {
+			continue
+		}
 
 		if visited[u] {
 			continue
@@ -148,7 +152,14 @@ func Crawl(cfg Config) (*snapshot.Snapshot, error) {
 				toSend = toSend[1:]
 			case res := <-results:
 				pages = append(pages, res.page)
-				pending, crawled, toSend = handleResult(res, pending, crawled, visited, toSend)
+				pending, crawled, toSend = handleResult(
+					res,
+					pending,
+					crawled,
+					visited,
+					toSend,
+					cfg.ExcludePaths,
+				)
 				if cfg.Progress != nil {
 					cfg.Progress(crawled, pending)
 				}
@@ -156,7 +167,14 @@ func Crawl(cfg Config) (*snapshot.Snapshot, error) {
 		} else {
 			res := <-results
 			pages = append(pages, res.page)
-			pending, crawled, toSend = handleResult(res, pending, crawled, visited, toSend)
+			pending, crawled, toSend = handleResult(
+				res,
+				pending,
+				crawled,
+				visited,
+				toSend,
+				cfg.ExcludePaths,
+			)
 			if cfg.Progress != nil {
 				cfg.Progress(crawled, pending)
 			}
@@ -167,7 +185,7 @@ func Crawl(cfg Config) (*snapshot.Snapshot, error) {
 	wg.Wait()
 
 	sort.Slice(pages, func(i, j int) bool { return pages[i].URL < pages[j].URL })
-	
+
 	fmt.Println("Pages crawled:", len(pages))
 
 	return &snapshot.Snapshot{
@@ -180,18 +198,37 @@ func Crawl(cfg Config) (*snapshot.Snapshot, error) {
 // handleResult enqueues any newly discovered internal links from a result.
 // It returns the updated pending count, crawled count, and send queue. The
 // crawled page itself is appended to pages by the caller.
-func handleResult(res result, pending, crawled int, visited map[string]bool, toSend []job) (int, int, []job) {
+func handleResult(
+	res result,
+	pending,
+	crawled int,
+	visited map[string]bool,
+	toSend []job,
+	excludePaths []string,
+) (int, int, []job) {
 	pending--
 	crawled++
+
 	for _, l := range res.links {
 		l = canonicalize(l)
+
+		if shouldExclude(l, excludePaths) {
+			continue
+		}
+
 		if visited[l] {
 			continue
 		}
+
 		visited[l] = true
 		pending++
-		toSend = append(toSend, job{url: l, parentURL: res.page.URL})
+
+		toSend = append(toSend, job{
+			url:       l,
+			parentURL: res.page.URL,
+		})
 	}
+
 	return pending, crawled, toSend
 }
 
@@ -208,7 +245,15 @@ func worker(ctx context.Context, client *http.Client, base *url.URL, jobs <-chan
 func fetch(ctx context.Context, client *http.Client, base *url.URL, j job) result {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, j.url, nil)
 	if err != nil {
-		return result{page: snapshot.Page{URL: j.url, ParentURL: j.parentURL, StatusCode: 0}}
+		fmt.Printf("FETCH ERROR: %s -> %v\n", j.url, err)
+
+		return result{
+			page: snapshot.Page{
+				URL: j.url,
+				ParentURL: j.parentURL,
+				StatusCode: 0,
+			},
+		}
 	}
 	req.Header.Set("User-Agent", "SiteSnap/0.1")
 

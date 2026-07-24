@@ -6,17 +6,18 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/RajanCodesDev/sitesnap/internal/compare"
+	"github.com/RajanCodesDev/sitesnap/internal/crawler"
+	"github.com/RajanCodesDev/sitesnap/internal/dupdetect"
+	"github.com/RajanCodesDev/sitesnap/internal/exporter"
+	"github.com/RajanCodesDev/sitesnap/internal/report"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/validation"
 	"os"
-	"runtime"
-	"sitesnap/internal/compare"
-	"sitesnap/internal/crawler"
-	"sitesnap/internal/dupdetect"
-	"sitesnap/internal/exporter"
-	"sitesnap/internal/report"
-	"sitesnap/internal/snapshot"
-	"sitesnap/internal/validation"
-	"time"
+	"strings"
 	"path/filepath"
+	"runtime"
+	"time"
 )
 
 // Run executes the SiteSnap CLI with the given arguments.
@@ -34,6 +35,15 @@ func Run(args []string) error {
 	defer recoverPanic(&tmpPath, &release)
 
 	fs := flag.NewFlagSet("sitesnap", flag.ContinueOnError)
+
+	var excludePaths multiStringFlag
+
+	fs.Var(
+		&excludePaths,
+		"exclude",
+		"Exclude URL paths from crawling (repeatable)",
+	)
+
 	fs.Usage = func() {
 		fmt.Fprintf(fs.Output(), "Usage: sitesnap [options] <base-url>\n\n")
 		fmt.Fprintf(fs.Output(), "Crawl a website and detect deployment regressions by comparing\n")
@@ -49,6 +59,9 @@ func Run(args []string) error {
 		noReplace = fs.Bool("no-replace", false, "do not replace the stored snapshot after comparing")
 		quiet     = fs.Bool("quiet", false, "suppress the progress bar")
 		strict    = fs.Bool("strict", false, "treat warnings (e.g. URL duplicates) as errors; fails the crawl if any exist")
+		version   = fs.Bool("version", false, "print SiteSnap version")
+
+		
 		csvOut    = fs.String(
 			"csv",
 			"",
@@ -59,6 +72,11 @@ func Run(args []string) error {
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
+	if *version {
+		fmt.Println("SiteSnap v1.0.0")
+		return nil
+	}
+	
 	if fs.NArg() != 1 {
 		fs.Usage()
 		return fmt.Errorf("exactly one base-url argument is required")
@@ -70,6 +88,7 @@ func Run(args []string) error {
 		Workers:   *workers,
 		Timeout:   *timeout,
 		UserAgent: "SiteSnap/0.1",
+		ExcludePaths: excludePaths,
 	}
 	if !*quiet {
 		cfg.Progress = progressBar
@@ -157,7 +176,6 @@ func Run(args []string) error {
 		}
 
 		// Export crawl snapshot as CSV if requested.
-
 
 		fmt.Printf("Baseline snapshot saved to %s (%d URLs).\n", *snapPath, len(curr.Pages))
 		return nil
@@ -273,4 +291,16 @@ func progressBar(crawled, pending int) {
 	if pending == 0 {
 		fmt.Fprint(os.Stderr, "\n")
 	}
+}
+
+
+type multiStringFlag []string
+
+func (m *multiStringFlag) String() string {
+	return strings.Join(*m, ",")
+}
+
+func (m *multiStringFlag) Set(v string) error {
+	*m = append(*m, v)
+	return nil
 }

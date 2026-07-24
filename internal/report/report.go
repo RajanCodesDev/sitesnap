@@ -9,8 +9,8 @@ import (
 	"io"
 	"time"
 
-	"sitesnap/internal/compare"
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/compare"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 // Stats is the summary statistics for a comparison.

@@ -3,7 +3,7 @@ package compare
 import (
 	"testing"
 
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 // TestCompareNoChanges verifies that an identical re-crawl yields an empty

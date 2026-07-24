@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"sitesnap/internal/crawler"
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/crawler"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 func page(url, parent string, status int, ct string) snapshot.Page {

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 // buildSite returns an httptest server with a moderately linked site so that
@@ -18,6 +18,14 @@ func buildSite(t *testing.T, leaves int) (*httptest.Server, *int32) {
 	t.Helper()
 	var hits int32
 	mux := http.NewServeMux()
+	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	})
+
+	mux.HandleFunc("/sitemap.xml", func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	})
+
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		atomic.AddInt32(&hits, 1)
 		w.Header().Set("Content-Type", "text/html")
@@ -159,6 +167,13 @@ func TestCrawlNoDuplicateCrawlsUnderConcurrency(t *testing.T) {
 // status 0 rather than hanging the crawl.
 func TestCrawlTimeoutUnreachable(t *testing.T) {
 	mux := http.NewServeMux()
+	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	})
+
+	mux.HandleFunc("/sitemap.xml", func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`<a href="/slow">S</a>`))

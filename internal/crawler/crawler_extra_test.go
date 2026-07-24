@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 // --- Unit tests for pure logic (no network) ---
@@ -135,29 +135,46 @@ func TestCrawlCircularLinks(t *testing.T) {
 
 func TestCrawlDuplicateLinks(t *testing.T) {
 	var hits int32
+
 	mux := http.NewServeMux()
+
+	// These requests are made during sitemap discovery.
+	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	})
+
+	mux.HandleFunc("/sitemap.xml", func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	})
+
 	pages := map[string]string{
 		"/":  `<a href="/a">A</a><a href="/a">A2</a><a href="/b">B</a>`,
 		"/a": `<a href="/">Home</a>`,
 		"/b": `<a href="/a">A</a>`,
 	}
+
 	for p, body := range pages {
 		p, body := p, body
+
 		mux.HandleFunc(p, func(w http.ResponseWriter, r *http.Request) {
 			atomic.AddInt32(&hits, 1)
+
 			w.Header().Set("Content-Type", "text/html")
-			w.Write([]byte(body))
+			_, _ = w.Write([]byte(body))
 		})
 	}
+
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
 
 	snap := crawl(t, srv.URL, 10)
+
 	if len(snap.Pages) != 3 {
 		t.Fatalf("got %d pages, want 3: %v", len(snap.Pages), urls(snap))
 	}
-	if int(atomic.LoadInt32(&hits)) != 3 {
-		t.Fatalf("server received %d hits, want 3 (no duplicate crawls)", hits)
+
+	if got := atomic.LoadInt32(&hits); got != 3 {
+		t.Fatalf("server received %d page hits, want 3", got)
 	}
 }
 
@@ -178,6 +195,14 @@ func TestCrawlBrokenLink(t *testing.T) {
 
 func TestCrawlRedirect(t *testing.T) {
 	mux := http.NewServeMux()
+	
+	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	})
+
+	mux.HandleFunc("/sitemap.xml", func(w http.ResponseWriter, r *http.Request) {
+		http.NotFound(w, r)
+	})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.Write([]byte(`<a href="/old">Old</a><a href="/new">New</a>`))

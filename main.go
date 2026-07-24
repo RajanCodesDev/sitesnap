@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"sitesnap/internal/cli"
+	"github.com/RajanCodesDev/sitesnap/internal/cli"
 )
 
 func main() {

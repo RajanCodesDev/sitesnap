@@ -18,8 +18,8 @@ import (
 	"net/http"
 	"strings"
 
-	"sitesnap/internal/dupdetect"
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/dupdetect"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 // Severity mirrors the severity used by the underlying packages.

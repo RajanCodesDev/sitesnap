@@ -12,7 +12,7 @@ import (
 	"sort"
 	"strings"
 
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 // Severity classifies a duplicate group. Exact duplicates (the same URL

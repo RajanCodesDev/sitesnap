@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"sitesnap/internal/dupdetect"
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/dupdetect"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 func vpage(url, parent string, status int, ct string) snapshot.Page {

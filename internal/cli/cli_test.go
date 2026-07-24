@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 // serveSite returns a tiny site: "/" links to /a and /b; /b returns 500 so the

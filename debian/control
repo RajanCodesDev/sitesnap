@@ -1,0 +1,23 @@
+Source: sitesnap
+Section: utils
+Priority: optional
+Maintainer: Shivendra Rajan <shivendrarajan10@gmail.com>
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-golang,
+ golang-any
+Standards-Version: 4.6.2
+XS-Go-Import-Path: github.com/RajanCodesDev/sitesnap
+Homepage: https://github.com/RajanCodesDev/sitesnap
+Rules-Requires-Root: no
+
+Package: sitesnap
+Architecture: any
+Depends:
+ ${misc:Depends},
+ ${shlibs:Depends}
+Description: Website deployment validation and regression detection tool
+ SiteSnap is a fast website deployment validation tool for DevOps teams.
+ It crawls websites, stores snapshots, compares deployments, detects
+ regressions, and exports reports in CSV format.
+

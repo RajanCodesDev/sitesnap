@@ -2,10 +2,10 @@ package exporter
 
 import (
 	"encoding/csv"
+	"fmt"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 	"os"
 	"strconv"
-	"fmt"
-	"sitesnap/internal/snapshot"
 )
 
 func ExportSnapshotCSV(s *snapshot.Snapshot, path string) error {

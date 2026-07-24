@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strconv"
 
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 // Change describes a single differing attribute for a URL present in both
