@@ -59,6 +59,9 @@ func Run(args []string) error {
 		noReplace = fs.Bool("no-replace", false, "do not replace the stored snapshot after comparing")
 		quiet     = fs.Bool("quiet", false, "suppress the progress bar")
 		strict    = fs.Bool("strict", false, "treat warnings (e.g. URL duplicates) as errors; fails the crawl if any exist")
+		version   = fs.Bool("version", false, "print SiteSnap version")
+
+		
 		csvOut    = fs.String(
 			"csv",
 			"",
@@ -69,6 +72,11 @@ func Run(args []string) error {
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
+	if *version {
+		fmt.Println("SiteSnap v1.0.0")
+		return nil
+	}
+	
 	if fs.NArg() != 1 {
 		fs.Usage()
 		return fmt.Errorf("exactly one base-url argument is required")
