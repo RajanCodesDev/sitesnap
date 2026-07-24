@@ -19,3 +19,4 @@ Description: Website deployment validation and regression detection tool
  SiteSnap is a fast website deployment validation tool for DevOps teams.
  It crawls websites, stores snapshots, compares deployments, detects
  regressions, and exports reports in CSV format.
+

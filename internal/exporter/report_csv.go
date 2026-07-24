@@ -4,7 +4,7 @@ import (
 	"encoding/csv"
 	"os"
 
-	"sitesnap/internal/compare"
+	"github.com/RajanCodesDev/sitesnap/internal/compare"
 )
 
 // ExportReportCSV exports the deployment comparison as a single CSV file.

@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"sitesnap/internal/compare"
+	"github.com/RajanCodesDev/sitesnap/internal/compare"
 )
 
 // ExportCSV exports a comparison report as multiple CSV files.

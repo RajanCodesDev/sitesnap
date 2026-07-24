@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 // testServer returns an httptest server with a small linked site.

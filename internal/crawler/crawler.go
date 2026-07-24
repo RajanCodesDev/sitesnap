@@ -12,11 +12,11 @@ package crawler
 import (
 	"context"
 	"fmt"
+	"github.com/RajanCodesDev/sitesnap/internal/parser"
+	"github.com/RajanCodesDev/sitesnap/internal/sitemap"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 	"net/http"
 	"net/url"
-	"sitesnap/internal/parser"
-	"sitesnap/internal/sitemap"
-	"sitesnap/internal/snapshot"
 	"sort"
 	"strings"
 	"sync"
@@ -167,7 +167,7 @@ func Crawl(cfg Config) (*snapshot.Snapshot, error) {
 	wg.Wait()
 
 	sort.Slice(pages, func(i, j int) bool { return pages[i].URL < pages[j].URL })
-	
+
 	fmt.Println("Pages crawled:", len(pages))
 
 	return &snapshot.Snapshot{

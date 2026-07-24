@@ -8,3 +8,4 @@ export CGO_ENABLED := 1
 
 override_dh_dwz:
 	true
+

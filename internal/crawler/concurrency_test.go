@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 // buildSite returns an httptest server with a moderately linked site so that

@@ -6,17 +6,17 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/RajanCodesDev/sitesnap/internal/compare"
+	"github.com/RajanCodesDev/sitesnap/internal/crawler"
+	"github.com/RajanCodesDev/sitesnap/internal/dupdetect"
+	"github.com/RajanCodesDev/sitesnap/internal/exporter"
+	"github.com/RajanCodesDev/sitesnap/internal/report"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/validation"
 	"os"
-	"runtime"
-	"sitesnap/internal/compare"
-	"sitesnap/internal/crawler"
-	"sitesnap/internal/dupdetect"
-	"sitesnap/internal/exporter"
-	"sitesnap/internal/report"
-	"sitesnap/internal/snapshot"
-	"sitesnap/internal/validation"
-	"time"
 	"path/filepath"
+	"runtime"
+	"time"
 )
 
 // Run executes the SiteSnap CLI with the given arguments.
@@ -157,7 +157,6 @@ func Run(args []string) error {
 		}
 
 		// Export crawl snapshot as CSV if requested.
-
 
 		fmt.Printf("Baseline snapshot saved to %s (%d URLs).\n", *snapPath, len(curr.Pages))
 		return nil

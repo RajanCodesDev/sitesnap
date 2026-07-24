@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"sitesnap/internal/snapshot"
+	"github.com/RajanCodesDev/sitesnap/internal/snapshot"
 )
 
 // --- Unit tests for pure logic (no network) ---
