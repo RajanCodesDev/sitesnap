@@ -1,0 +1,7 @@
+*.json
+
+graphify-out
+*.deb
+sitesnap
+reports/*
+!reports/
